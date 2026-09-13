@@ -19,6 +19,7 @@ The client expects the API at `http://localhost:4000` by default. You can overri
 
 ```bash
 NEXT_PUBLIC_API_URL=http://localhost:4000
+NEXT_PUBLIC_OWNER_PORTAL_SLUG=owner-light-studio
 NEXT_PUBLIC_OWNER_PORTAL_PREVIEW_PATH=/portal/your-secret-slug/login
 ```
 
@@ -43,10 +44,10 @@ When `MONGODB_URI` is configured the API stores classes in MongoDB. Without Mong
 
 ## Owner portal
 
-The owner login route is controlled by `OWNER_PORTAL_SLUG` and should stay private. Set the same slug in both the client environment and the server environment so the Next.js route guard and the API agree on the secret path. The matching login URL is:
+The owner login route is controlled by `NEXT_PUBLIC_OWNER_PORTAL_SLUG` in the Next.js app and should stay private. The matching login URL is:
 
 ```text
-/portal/<OWNER_PORTAL_SLUG>/login
+/portal/<NEXT_PUBLIC_OWNER_PORTAL_SLUG>/login
 ```
 
 After logging in, the owner can update:
