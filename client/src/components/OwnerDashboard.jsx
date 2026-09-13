@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   createClassSession,
   deleteClassSession,
@@ -184,7 +184,6 @@ export default function OwnerDashboard({ slug }) {
       {errorMessage ? <div className="alert alert-error rounded-3xl">{errorMessage}</div> : null}
 
       <AboutContentForm
-        key={JSON.stringify(defaultAboutForm)}
         authToken={auth.token}
         defaultValue={defaultAboutForm}
         onError={setErrorMessage}
@@ -246,13 +245,19 @@ export default function OwnerDashboard({ slug }) {
 }
 
 function AboutContentForm({ authToken, defaultValue, onError, onSuccess, onUpdate }) {
-  const [aboutForm, setAboutForm] = useState(defaultValue);
+  const formRef = useRef(null);
   const [isSavingContent, setIsSavingContent] = useState(false);
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setAboutForm((current) => ({ ...current, [name]: value }));
-  };
+  useEffect(() => {
+    if (!formRef.current) {
+      return;
+    }
+
+    formRef.current.elements.heroTagline.value = defaultValue.heroTagline;
+    formRef.current.elements.aboutMeTitle.value = defaultValue.aboutMeTitle;
+    formRef.current.elements.aboutMeBody.value = defaultValue.aboutMeBody;
+    formRef.current.elements.carouselUrls.value = defaultValue.carouselUrls;
+  }, [defaultValue]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -261,12 +266,13 @@ function AboutContentForm({ authToken, defaultValue, onError, onSuccess, onUpdat
     setIsSavingContent(true);
 
     try {
+      const formData = new FormData(event.currentTarget);
       const response = await saveSiteContent(
         {
-          heroTagline: aboutForm.heroTagline,
-          aboutMeTitle: aboutForm.aboutMeTitle,
-          aboutMeBody: aboutForm.aboutMeBody,
-          carouselImages: normalizeCarouselImages(aboutForm.carouselUrls),
+          heroTagline: formData.get("heroTagline")?.toString() || "",
+          aboutMeTitle: formData.get("aboutMeTitle")?.toString() || "",
+          aboutMeBody: formData.get("aboutMeBody")?.toString() || "",
+          carouselImages: normalizeCarouselImages(formData.get("carouselUrls")?.toString() || ""),
         },
         authToken,
       );
@@ -280,7 +286,7 @@ function AboutContentForm({ authToken, defaultValue, onError, onSuccess, onUpdat
   };
 
   return (
-    <form className="glass-card space-y-5 px-8 py-10 lg:px-12" onSubmit={handleSubmit}>
+    <form ref={formRef} className="glass-card space-y-5 px-8 py-10 lg:px-12" onSubmit={handleSubmit}>
       <div>
         <p className="section-kicker">Site content</p>
         <h2 className="mt-3 text-3xl font-semibold text-slate-950">About me and homepage carousel</h2>
@@ -290,8 +296,7 @@ function AboutContentForm({ authToken, defaultValue, onError, onSuccess, onUpdat
         <textarea
           className="textarea textarea-bordered min-h-24 rounded-3xl border-slate-200 bg-white"
           name="heroTagline"
-          value={aboutForm.heroTagline}
-          onChange={handleChange}
+          defaultValue={defaultValue.heroTagline}
         />
       </label>
       <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
@@ -299,8 +304,7 @@ function AboutContentForm({ authToken, defaultValue, onError, onSuccess, onUpdat
         <input
           className="input input-bordered rounded-2xl border-slate-200 bg-white"
           name="aboutMeTitle"
-          value={aboutForm.aboutMeTitle}
-          onChange={handleChange}
+          defaultValue={defaultValue.aboutMeTitle}
         />
       </label>
       <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
@@ -308,8 +312,7 @@ function AboutContentForm({ authToken, defaultValue, onError, onSuccess, onUpdat
         <textarea
           className="textarea textarea-bordered min-h-36 rounded-3xl border-slate-200 bg-white"
           name="aboutMeBody"
-          value={aboutForm.aboutMeBody}
-          onChange={handleChange}
+          defaultValue={defaultValue.aboutMeBody}
         />
       </label>
       <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
@@ -317,8 +320,7 @@ function AboutContentForm({ authToken, defaultValue, onError, onSuccess, onUpdat
         <textarea
           className="textarea textarea-bordered min-h-36 rounded-3xl border-slate-200 bg-white font-mono text-sm"
           name="carouselUrls"
-          value={aboutForm.carouselUrls}
-          onChange={handleChange}
+          defaultValue={defaultValue.carouselUrls}
         />
       </label>
       <button className="btn btn-warning rounded-full px-6 text-base text-amber-950" disabled={isSavingContent}>

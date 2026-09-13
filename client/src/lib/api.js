@@ -18,7 +18,11 @@ export async function fetchStudioData() {
   try {
     const response = await api.get("/api/site");
     return response.data;
-  } catch {
+  } catch (error) {
+    if (error.response) {
+      throw error;
+    }
+
     return {
       siteContent: fallbackSiteContent,
       classes: fallbackClasses,

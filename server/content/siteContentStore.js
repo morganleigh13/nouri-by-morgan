@@ -4,7 +4,7 @@ import { isDatabaseReady } from "../db/connect.js";
 
 let memorySiteContent = structuredClone(defaultSiteContent);
 
-function normalizeSiteContent(input) {
+function normalizeSiteContent(input, currentContent = defaultSiteContent) {
   const normalizedCarouselImages =
     input.carouselImages
       ?.map((image, index) => ({
@@ -18,6 +18,9 @@ function normalizeSiteContent(input) {
     aboutMeTitle: input.aboutMeTitle?.trim() || defaultSiteContent.aboutMeTitle,
     aboutMeBody: input.aboutMeBody?.trim() || defaultSiteContent.aboutMeBody,
     carouselImages: normalizedCarouselImages.length ? normalizedCarouselImages : defaultSiteContent.carouselImages,
+    contactEmail: input.contactEmail?.trim() || currentContent.contactEmail || defaultSiteContent.contactEmail,
+    contactPhone: input.contactPhone?.trim() || currentContent.contactPhone || defaultSiteContent.contactPhone,
+    instagramUrl: input.instagramUrl?.trim() || currentContent.instagramUrl || defaultSiteContent.instagramUrl,
   };
 }
 
@@ -41,14 +44,14 @@ export async function getSiteContent() {
 }
 
 export async function updateSiteContent(payload) {
-  const normalized = normalizeSiteContent(payload);
-
   if (!isDatabaseReady()) {
+    const normalized = normalizeSiteContent(payload, memorySiteContent);
     memorySiteContent = { ...memorySiteContent, ...normalized };
     return memorySiteContent;
   }
 
   const existing = await ensureSeedContent();
+  const normalized = normalizeSiteContent(payload, existing.toObject());
   Object.assign(existing, normalized);
   await existing.save();
   return existing.toObject();
