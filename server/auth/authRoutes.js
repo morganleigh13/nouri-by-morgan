@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authenticateOwner, signOwnerToken, verifyOwnerToken } from "./ownerAuth.js";
+import { authenticateOwner, signOwnerToken } from "./ownerAuth.js";
 import { requireOwnerAuth } from "./requireOwnerAuth.js";
 
 const router = Router();
@@ -23,9 +23,7 @@ router.post("/login", async (request, response, next) => {
 });
 
 router.get("/verify", requireOwnerAuth, (request, response) => {
-  const authorizationHeader = request.headers.authorization;
-  const token = authorizationHeader.replace("Bearer ", "");
-  response.json({ owner: verifyOwnerToken(token) });
+  response.json({ owner: request.owner });
 });
 
 export default router;
