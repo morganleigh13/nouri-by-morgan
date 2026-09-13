@@ -4,27 +4,45 @@ import { isDatabaseReady } from "../db/connect.js";
 
 let memorySiteContent = structuredClone(defaultSiteContent);
 
+function normalizeTextField(input, fieldName, currentValue, defaultValue) {
+  if (Object.hasOwn(input, fieldName)) {
+    return input[fieldName]?.trim() ?? "";
+  }
+
+  return currentValue ?? defaultValue;
+}
+
 function normalizeSiteContent(input, currentContent = defaultSiteContent) {
-  const normalizedCarouselImages =
-    input.carouselImages
-      ?.map((image, index) => ({
-        src: image.src?.trim(),
-        alt: image.alt?.trim() || `Nouri By Morgan gallery image ${index + 1}`,
-      }))
-      ?.filter((image) => image.src) || [];
+  const currentCarouselImages = currentContent.carouselImages || defaultSiteContent.carouselImages;
+  const normalizedCarouselImages = input.carouselImages?.reduce((images, image, index) => {
+    const src = image.src?.trim();
+
+    if (!src) {
+      return images;
+    }
+
+    const existingImage = currentCarouselImages.find((entry) => entry.src === src);
+
+    images.push({
+      src,
+      alt: image.alt?.trim() || existingImage?.alt || `Nouri By Morgan gallery image ${index + 1}`,
+    });
+
+    return images;
+  }, []);
 
   return {
-    heroTagline: input.heroTagline?.trim() || currentContent.heroTagline || defaultSiteContent.heroTagline,
-    aboutMeTitle: input.aboutMeTitle?.trim() || currentContent.aboutMeTitle || defaultSiteContent.aboutMeTitle,
-    aboutMeBody: input.aboutMeBody?.trim() || currentContent.aboutMeBody || defaultSiteContent.aboutMeBody,
+    heroTagline: normalizeTextField(input, "heroTagline", currentContent.heroTagline, defaultSiteContent.heroTagline),
+    aboutMeTitle: normalizeTextField(input, "aboutMeTitle", currentContent.aboutMeTitle, defaultSiteContent.aboutMeTitle),
+    aboutMeBody: normalizeTextField(input, "aboutMeBody", currentContent.aboutMeBody, defaultSiteContent.aboutMeBody),
     carouselImages: input.carouselImages
-      ? normalizedCarouselImages.length
+      ? normalizedCarouselImages?.length
         ? normalizedCarouselImages
-        : currentContent.carouselImages || defaultSiteContent.carouselImages
-      : currentContent.carouselImages || defaultSiteContent.carouselImages,
-    contactEmail: input.contactEmail?.trim() || currentContent.contactEmail || defaultSiteContent.contactEmail,
-    contactPhone: input.contactPhone?.trim() || currentContent.contactPhone || defaultSiteContent.contactPhone,
-    instagramUrl: input.instagramUrl?.trim() || currentContent.instagramUrl || defaultSiteContent.instagramUrl,
+        : currentCarouselImages
+      : currentCarouselImages,
+    contactEmail: normalizeTextField(input, "contactEmail", currentContent.contactEmail, defaultSiteContent.contactEmail),
+    contactPhone: normalizeTextField(input, "contactPhone", currentContent.contactPhone, defaultSiteContent.contactPhone),
+    instagramUrl: normalizeTextField(input, "instagramUrl", currentContent.instagramUrl, defaultSiteContent.instagramUrl),
   };
 }
 

@@ -22,6 +22,8 @@ const allowedOrigin = process.env.CLIENT_ORIGIN || "http://localhost:3000";
 app.use(
   cors({
     origin: allowedOrigin,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Authorization", "Content-Type"],
   }),
 );
 app.use(express.json({ limit: "1mb" }));

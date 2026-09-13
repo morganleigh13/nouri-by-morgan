@@ -1,22 +1,28 @@
-const contactCards = [
-  {
-    title: "Email",
-    value: "hello@nouribymorgan.com",
-    href: "mailto:hello@nouribymorgan.com",
-  },
-  {
-    title: "Instagram",
-    value: "@nouribymorgan",
-    href: "https://instagram.com/nouribymorgan",
-  },
-  {
-    title: "Book a consult",
-    value: "Reach out for private sessions and partnerships.",
-    href: "mailto:hello@nouribymorgan.com?subject=Nouri%20By%20Morgan%20Inquiry",
-  },
-];
+"use client";
+
+import { useAppSelector } from "@/redux/hooks";
 
 export default function ContactPage() {
+  const { contactEmail, instagramUrl } = useAppSelector((state) => state.studio.siteContent);
+  const instagramHandle = instagramUrl.replace(/^https?:\/\/instagram\.com\//, "@");
+  const contactCards = [
+    {
+      title: "Email",
+      value: contactEmail,
+      href: `mailto:${contactEmail}`,
+    },
+    {
+      title: "Instagram",
+      value: instagramHandle,
+      href: instagramUrl,
+    },
+    {
+      title: "Book a consult",
+      value: "Reach out for private sessions and partnerships.",
+      href: `mailto:${contactEmail}?subject=Nouri%20By%20Morgan%20Inquiry`,
+    },
+  ];
+
   return (
     <section className="page-shell">
       <div className="glass-card px-8 py-12 lg:px-12">

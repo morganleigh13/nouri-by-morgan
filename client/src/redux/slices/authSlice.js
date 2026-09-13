@@ -20,9 +20,13 @@ const authSlice = createSlice({
         return;
       }
 
-      const session = JSON.parse(rawSession);
-      state.token = session.token;
-      state.owner = session.owner;
+      try {
+        const session = JSON.parse(rawSession);
+        state.token = session.token;
+        state.owner = session.owner;
+      } catch {
+        window.localStorage.removeItem("nouri-owner-session");
+      }
     },
     loginSuccess: (state, action) => {
       state.token = action.payload.token;
