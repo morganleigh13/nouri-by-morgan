@@ -27,14 +27,8 @@ const studioSlice = createSlice({
       state.error = action.payload;
       state.status = "error";
     },
-    setAboutMe: (state, action) => {
-      state.siteContent = {
-        ...state.siteContent,
-        ...action.payload,
-      };
-    },
-    replaceCarousel: (state, action) => {
-      state.siteContent.carouselImages = action.payload;
+    setSiteContent: (state, action) => {
+      state.siteContent = action.payload;
     },
     upsertClass: (state, action) => {
       const nextClass = action.payload;
@@ -56,8 +50,7 @@ const studioSlice = createSlice({
 export const {
   hydrateStudio,
   removeClass,
-  replaceCarousel,
-  setAboutMe,
+  setSiteContent,
   setStudioError,
   setStudioStatus,
   upsertClass,

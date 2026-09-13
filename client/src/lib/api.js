@@ -10,7 +10,7 @@ const api = axios.create({
 
 const withAuth = (token) => ({
   headers: {
-    Authorization: "Be" + "arer " + token,
+    Authorization: `Bearer ${token}`,
   },
 });
 

@@ -11,7 +11,7 @@ import {
 } from "@/lib/api";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { logout } from "@/redux/slices/authSlice";
-import { removeClass, replaceCarousel, setAboutMe, upsertClass } from "@/redux/slices/studioSlice";
+import { removeClass, setSiteContent, upsertClass } from "@/redux/slices/studioSlice";
 
 const emptyClass = {
   title: "",
@@ -189,8 +189,7 @@ export default function OwnerDashboard({ slug }) {
         onError={setErrorMessage}
         onSuccess={setStatusMessage}
         onUpdate={(response) => {
-          dispatch(setAboutMe(response));
-          dispatch(replaceCarousel(response.carouselImages));
+          dispatch(setSiteContent(response));
         }}
       />
 
