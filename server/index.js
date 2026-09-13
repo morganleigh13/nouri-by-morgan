@@ -11,6 +11,10 @@ import { connectDatabase, getStorageMode } from "./db/connect.js";
 
 dotenv.config();
 
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET must be configured before starting the server.");
+}
+
 const app = express();
 const port = Number(process.env.PORT || 4000);
 const allowedOrigin = process.env.CLIENT_ORIGIN || "http://localhost:3000";

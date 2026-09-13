@@ -2,14 +2,13 @@ import argon2 from "argon2";
 import jwt from "jsonwebtoken";
 
 const FALLBACK_EMAIL = "owner@nouribymorgan.com";
-const FALLBACK_SECRET = "nouri-local-development-secret";
 
 export function getOwnerEmail() {
   return process.env.OWNER_EMAIL || FALLBACK_EMAIL;
 }
 
 function getJwtSecret() {
-  return process.env.JWT_SECRET || FALLBACK_SECRET;
+  return process.env.JWT_SECRET;
 }
 
 export async function authenticateOwner({ email, password }) {

@@ -37,15 +37,11 @@ export default function OwnerDashboard({ slug }) {
     }),
     [siteContent],
   );
-
-  const [aboutForm, setAboutForm] = useState(defaultAboutForm);
-  const [isAboutDirty, setIsAboutDirty] = useState(false);
   const [newClass, setNewClass] = useState(emptyClass);
   const [classDrafts, setClassDrafts] = useState({});
   const [statusMessage, setStatusMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isAuthorizing, setIsAuthorizing] = useState(true);
-  const [isSavingContent, setIsSavingContent] = useState(false);
   const [isCreatingClass, setIsCreatingClass] = useState(false);
 
   useEffect(() => {
@@ -77,24 +73,6 @@ export default function OwnerDashboard({ slug }) {
     };
   }, [auth.token, dispatch]);
 
-  const isLoggedIn = Boolean(auth.token);
-
-  const normalizeCarouselImages = (value) =>
-    value
-      .split("\n")
-      .map((entry) => entry.trim())
-      .filter(Boolean)
-      .map((src, index) => ({
-        src,
-        alt: `Nouri By Morgan gallery image ${index + 1}`,
-      }));
-
-  const handleAboutChange = (event) => {
-    const { name, value } = event.target;
-    setIsAboutDirty(true);
-    setAboutForm((current) => ({ ...current, [name]: value }));
-  };
-
   const handleDraftChange = (classId, field, value) => {
     setClassDrafts((current) => ({
       ...current,
@@ -110,37 +88,6 @@ export default function OwnerDashboard({ slug }) {
     setNewClass((current) => ({ ...current, [name]: value }));
   };
 
-  const handleSaveContent = async (event) => {
-    event.preventDefault();
-    setStatusMessage("");
-    setErrorMessage("");
-    setIsSavingContent(true);
-
-    try {
-      const payload = {
-        heroTagline: aboutForm.heroTagline,
-        aboutMeTitle: aboutForm.aboutMeTitle,
-        aboutMeBody: aboutForm.aboutMeBody,
-        carouselImages: normalizeCarouselImages(aboutForm.carouselUrls),
-      };
-      const response = await saveSiteContent(payload, auth.token);
-      dispatch(setAboutMe(response));
-      dispatch(replaceCarousel(response.carouselImages));
-      setAboutForm({
-        heroTagline: response.heroTagline,
-        aboutMeTitle: response.aboutMeTitle,
-        aboutMeBody: response.aboutMeBody,
-        carouselUrls: response.carouselImages.map((image) => image.src).join("\n"),
-      });
-      setIsAboutDirty(false);
-      setStatusMessage("Site content updated.");
-    } catch (error) {
-      setErrorMessage(error.message);
-    } finally {
-      setIsSavingContent(false);
-    }
-  };
-
   const handleCreateClass = async (event) => {
     event.preventDefault();
     setStatusMessage("");
@@ -153,7 +100,7 @@ export default function OwnerDashboard({ slug }) {
       setNewClass(emptyClass);
       setStatusMessage("Class created.");
     } catch (error) {
-      setErrorMessage(error.message);
+      setErrorMessage(error.response?.data?.message || error.message);
     } finally {
       setIsCreatingClass(false);
     }
@@ -166,10 +113,14 @@ export default function OwnerDashboard({ slug }) {
     try {
       const updated = await updateClassSession(classId, getClassDraft(classDrafts, classes, classId), auth.token);
       dispatch(upsertClass(updated));
-      setClassDrafts((current) => ({ ...current, [classId]: undefined }));
+      setClassDrafts((current) => {
+        const nextDrafts = { ...current };
+        delete nextDrafts[classId];
+        return nextDrafts;
+      });
       setStatusMessage(`Updated ${updated.title}.`);
     } catch (error) {
-      setErrorMessage(error.message);
+      setErrorMessage(error.response?.data?.message || error.message);
     }
   };
 
@@ -187,7 +138,7 @@ export default function OwnerDashboard({ slug }) {
       });
       setStatusMessage("Class removed.");
     } catch (error) {
-      setErrorMessage(error.message);
+      setErrorMessage(error.response?.data?.message || error.message);
     }
   };
 
@@ -199,7 +150,7 @@ export default function OwnerDashboard({ slug }) {
     );
   }
 
-  if (!isLoggedIn) {
+  if (!auth.token) {
     return (
       <section className="page-shell">
         <div className="mx-auto max-w-2xl glass-card px-8 py-12 text-center">
@@ -212,8 +163,6 @@ export default function OwnerDashboard({ slug }) {
       </section>
     );
   }
-
-  const visibleAboutForm = isAboutDirty ? aboutForm : defaultAboutForm;
 
   return (
     <section className="page-shell space-y-8">
@@ -234,51 +183,17 @@ export default function OwnerDashboard({ slug }) {
       {statusMessage ? <div className="alert alert-success rounded-3xl">{statusMessage}</div> : null}
       {errorMessage ? <div className="alert alert-error rounded-3xl">{errorMessage}</div> : null}
 
-      <form className="glass-card space-y-5 px-8 py-10 lg:px-12" onSubmit={handleSaveContent}>
-        <div>
-          <p className="section-kicker">Site content</p>
-          <h2 className="mt-3 text-3xl font-semibold text-slate-950">About me and homepage carousel</h2>
-        </div>
-        <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
-          Hero tagline
-          <textarea
-            className="textarea textarea-bordered min-h-24 rounded-3xl border-slate-200 bg-white"
-            name="heroTagline"
-            value={visibleAboutForm.heroTagline}
-            onChange={handleAboutChange}
-          />
-        </label>
-        <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
-          About me title
-          <input
-            className="input input-bordered rounded-2xl border-slate-200 bg-white"
-            name="aboutMeTitle"
-            value={visibleAboutForm.aboutMeTitle}
-            onChange={handleAboutChange}
-          />
-        </label>
-        <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
-          About me body
-          <textarea
-            className="textarea textarea-bordered min-h-36 rounded-3xl border-slate-200 bg-white"
-            name="aboutMeBody"
-            value={visibleAboutForm.aboutMeBody}
-            onChange={handleAboutChange}
-          />
-        </label>
-        <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
-          Carousel image URLs (one per line)
-          <textarea
-            className="textarea textarea-bordered min-h-36 rounded-3xl border-slate-200 bg-white font-mono text-sm"
-            name="carouselUrls"
-            value={visibleAboutForm.carouselUrls}
-            onChange={handleAboutChange}
-          />
-        </label>
-        <button className="btn btn-warning rounded-full px-6 text-base text-amber-950" disabled={isSavingContent}>
-          {isSavingContent ? "Saving..." : "Save site content"}
-        </button>
-      </form>
+      <AboutContentForm
+        key={JSON.stringify(defaultAboutForm)}
+        authToken={auth.token}
+        defaultValue={defaultAboutForm}
+        onError={setErrorMessage}
+        onSuccess={setStatusMessage}
+        onUpdate={(response) => {
+          dispatch(setAboutMe(response));
+          dispatch(replaceCarousel(response.carouselImages));
+        }}
+      />
 
       <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
         <form className="glass-card space-y-4 px-8 py-10" onSubmit={handleCreateClass}>
@@ -328,6 +243,100 @@ export default function OwnerDashboard({ slug }) {
       </div>
     </section>
   );
+}
+
+function AboutContentForm({ authToken, defaultValue, onError, onSuccess, onUpdate }) {
+  const [aboutForm, setAboutForm] = useState(defaultValue);
+  const [isSavingContent, setIsSavingContent] = useState(false);
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setAboutForm((current) => ({ ...current, [name]: value }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    onSuccess("");
+    onError("");
+    setIsSavingContent(true);
+
+    try {
+      const response = await saveSiteContent(
+        {
+          heroTagline: aboutForm.heroTagline,
+          aboutMeTitle: aboutForm.aboutMeTitle,
+          aboutMeBody: aboutForm.aboutMeBody,
+          carouselImages: normalizeCarouselImages(aboutForm.carouselUrls),
+        },
+        authToken,
+      );
+      onUpdate(response);
+      onSuccess("Site content updated.");
+    } catch (error) {
+      onError(error.response?.data?.message || error.message);
+    } finally {
+      setIsSavingContent(false);
+    }
+  };
+
+  return (
+    <form className="glass-card space-y-5 px-8 py-10 lg:px-12" onSubmit={handleSubmit}>
+      <div>
+        <p className="section-kicker">Site content</p>
+        <h2 className="mt-3 text-3xl font-semibold text-slate-950">About me and homepage carousel</h2>
+      </div>
+      <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+        Hero tagline
+        <textarea
+          className="textarea textarea-bordered min-h-24 rounded-3xl border-slate-200 bg-white"
+          name="heroTagline"
+          value={aboutForm.heroTagline}
+          onChange={handleChange}
+        />
+      </label>
+      <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+        About me title
+        <input
+          className="input input-bordered rounded-2xl border-slate-200 bg-white"
+          name="aboutMeTitle"
+          value={aboutForm.aboutMeTitle}
+          onChange={handleChange}
+        />
+      </label>
+      <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+        About me body
+        <textarea
+          className="textarea textarea-bordered min-h-36 rounded-3xl border-slate-200 bg-white"
+          name="aboutMeBody"
+          value={aboutForm.aboutMeBody}
+          onChange={handleChange}
+        />
+      </label>
+      <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+        Carousel image URLs (one per line)
+        <textarea
+          className="textarea textarea-bordered min-h-36 rounded-3xl border-slate-200 bg-white font-mono text-sm"
+          name="carouselUrls"
+          value={aboutForm.carouselUrls}
+          onChange={handleChange}
+        />
+      </label>
+      <button className="btn btn-warning rounded-full px-6 text-base text-amber-950" disabled={isSavingContent}>
+        {isSavingContent ? "Saving..." : "Save site content"}
+      </button>
+    </form>
+  );
+}
+
+function normalizeCarouselImages(value) {
+  return value
+    .split("\n")
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .map((src, index) => ({
+      src,
+      alt: `Nouri By Morgan gallery image ${index + 1}`,
+    }));
 }
 
 function getClassDraft(drafts, classes, classId) {

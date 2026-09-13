@@ -43,7 +43,7 @@ When `MONGODB_URI` is configured the API stores classes in MongoDB. Without Mong
 
 ## Owner portal
 
-The owner login route is controlled by `OWNER_PORTAL_SLUG` on the server and should stay private. The matching login URL is:
+The owner login route is controlled by `OWNER_PORTAL_SLUG` and should stay private. Set the same slug in both the client environment and the server environment so the Next.js route guard and the API agree on the secret path. The matching login URL is:
 
 ```text
 /portal/<OWNER_PORTAL_SLUG>/login

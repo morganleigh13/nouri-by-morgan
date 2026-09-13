@@ -5,18 +5,19 @@ import { isDatabaseReady } from "../db/connect.js";
 let memorySiteContent = structuredClone(defaultSiteContent);
 
 function normalizeSiteContent(input) {
+  const normalizedCarouselImages =
+    input.carouselImages
+      ?.map((image, index) => ({
+        src: image.src?.trim(),
+        alt: image.alt?.trim() || `Nouri By Morgan gallery image ${index + 1}`,
+      }))
+      ?.filter((image) => image.src) || [];
+
   return {
     heroTagline: input.heroTagline?.trim() || defaultSiteContent.heroTagline,
     aboutMeTitle: input.aboutMeTitle?.trim() || defaultSiteContent.aboutMeTitle,
     aboutMeBody: input.aboutMeBody?.trim() || defaultSiteContent.aboutMeBody,
-    carouselImages:
-      input.carouselImages?.map((image, index) => ({
-        src: image.src?.trim(),
-        alt: image.alt?.trim() || `Nouri By Morgan gallery image ${index + 1}`,
-      }))?.filter((image) => image.src) || defaultSiteContent.carouselImages,
-    contactEmail: input.contactEmail?.trim() || defaultSiteContent.contactEmail,
-    contactPhone: input.contactPhone?.trim() || defaultSiteContent.contactPhone,
-    instagramUrl: input.instagramUrl?.trim() || defaultSiteContent.instagramUrl,
+    carouselImages: normalizedCarouselImages.length ? normalizedCarouselImages : defaultSiteContent.carouselImages,
   };
 }
 
@@ -43,20 +44,12 @@ export async function updateSiteContent(payload) {
   const normalized = normalizeSiteContent(payload);
 
   if (!isDatabaseReady()) {
-    memorySiteContent = {
-      ...memorySiteContent,
-      ...normalized,
-    };
+    memorySiteContent = { ...memorySiteContent, ...normalized };
     return memorySiteContent;
   }
 
   const existing = await ensureSeedContent();
-  Object.assign(existing, {
-    ...normalized,
-    contactEmail: existing.contactEmail,
-    contactPhone: existing.contactPhone,
-    instagramUrl: existing.instagramUrl,
-  });
+  Object.assign(existing, normalized);
   await existing.save();
   return existing.toObject();
 }

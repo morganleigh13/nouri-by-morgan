@@ -29,7 +29,7 @@ export default function PortalLogin({ slug }) {
       dispatch(loginSuccess(session));
       router.push(`/portal/${slug}/dashboard`);
     } catch (submitError) {
-      setError(submitError.message);
+      setError(submitError.response?.data?.message || submitError.message);
     } finally {
       setIsSubmitting(false);
     }
