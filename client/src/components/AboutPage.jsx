@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useAppSelector } from "@/redux/hooks";
 
 export default function AboutPage() {
@@ -18,7 +19,7 @@ export default function AboutPage() {
         <div className="grid gap-5 md:grid-cols-3">
           {about.carouselImages.map((image) => (
             <figure key={image.src} className="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white/80 shadow-sm">
-              <img src={image.src} alt={image.alt} className="h-72 w-full object-cover" />
+              <Image src={image.src} alt={image.alt} width={720} height={480} className="h-72 w-full object-cover" />
               <figcaption className="p-5">
                 <p className="text-sm font-semibold uppercase tracking-[0.2em] text-amber-500">Studio moment</p>
                 <p className="mt-4 text-lg font-medium text-slate-900">{image.alt}</p>

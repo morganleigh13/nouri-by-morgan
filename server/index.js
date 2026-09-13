@@ -17,11 +17,22 @@ if (!process.env.JWT_SECRET) {
 
 const app = express();
 const port = Number(process.env.PORT || 4000);
-const allowedOrigin = process.env.CLIENT_ORIGIN || "http://localhost:3000";
+const allowedOrigins = (process.env.CLIENT_ORIGIN || "http://localhost:3000")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 app.use(
   cors({
-    origin: allowedOrigin,
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error("This origin is not allowed by CORS."));
+    },
+    credentials: false,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Authorization", "Content-Type"],
   }),

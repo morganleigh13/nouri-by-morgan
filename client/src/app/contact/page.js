@@ -1,25 +1,39 @@
 "use client";
 
+import { useMemo } from "react";
 import { useAppSelector } from "@/redux/hooks";
 
 export default function ContactPage() {
   const { contactEmail, instagramUrl } = useAppSelector((state) => state.studio.siteContent);
-  const instagramHandle = instagramUrl.replace(/^https?:\/\/instagram\.com\//, "@");
+
+  const instagramHandle = useMemo(() => {
+    try {
+      const url = new URL(instagramUrl);
+      const pathSegment = url.pathname.split("/").filter(Boolean)[0];
+      return pathSegment ? `@${pathSegment}` : instagramUrl;
+    } catch {
+      return instagramUrl.startsWith("@") ? instagramUrl : instagramUrl;
+    }
+  }, [instagramUrl]);
+
   const contactCards = [
     {
       title: "Email",
       value: contactEmail,
       href: `mailto:${contactEmail}`,
+      ariaLabel: `Email Nouri By Morgan at ${contactEmail}`,
     },
     {
       title: "Instagram",
       value: instagramHandle,
       href: instagramUrl,
+      ariaLabel: `Open the Nouri By Morgan Instagram profile ${instagramHandle}`,
     },
     {
       title: "Book a consult",
       value: "Reach out for private sessions and partnerships.",
       href: `mailto:${contactEmail}?subject=Nouri%20By%20Morgan%20Inquiry`,
+      ariaLabel: `Email ${contactEmail} to book a consult with Nouri By Morgan`,
     },
   ];
 
@@ -39,6 +53,7 @@ export default function ContactPage() {
             <a
               key={card.title}
               href={card.href}
+              aria-label={card.ariaLabel}
               target={card.href.startsWith("http") ? "_blank" : undefined}
               rel={card.href.startsWith("http") ? "noreferrer" : undefined}
               className="rounded-[1.75rem] border border-slate-200 bg-white/80 p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
