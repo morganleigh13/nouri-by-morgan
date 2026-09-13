@@ -14,10 +14,14 @@ function normalizeSiteContent(input, currentContent = defaultSiteContent) {
       ?.filter((image) => image.src) || [];
 
   return {
-    heroTagline: input.heroTagline?.trim() || defaultSiteContent.heroTagline,
-    aboutMeTitle: input.aboutMeTitle?.trim() || defaultSiteContent.aboutMeTitle,
-    aboutMeBody: input.aboutMeBody?.trim() || defaultSiteContent.aboutMeBody,
-    carouselImages: normalizedCarouselImages.length ? normalizedCarouselImages : defaultSiteContent.carouselImages,
+    heroTagline: input.heroTagline?.trim() || currentContent.heroTagline || defaultSiteContent.heroTagline,
+    aboutMeTitle: input.aboutMeTitle?.trim() || currentContent.aboutMeTitle || defaultSiteContent.aboutMeTitle,
+    aboutMeBody: input.aboutMeBody?.trim() || currentContent.aboutMeBody || defaultSiteContent.aboutMeBody,
+    carouselImages: input.carouselImages
+      ? normalizedCarouselImages.length
+        ? normalizedCarouselImages
+        : currentContent.carouselImages || defaultSiteContent.carouselImages
+      : currentContent.carouselImages || defaultSiteContent.carouselImages,
     contactEmail: input.contactEmail?.trim() || currentContent.contactEmail || defaultSiteContent.contactEmail,
     contactPhone: input.contactPhone?.trim() || currentContent.contactPhone || defaultSiteContent.contactPhone,
     instagramUrl: input.instagramUrl?.trim() || currentContent.instagramUrl || defaultSiteContent.instagramUrl,

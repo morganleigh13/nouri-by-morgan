@@ -44,7 +44,7 @@ When `MONGODB_URI` is configured the API stores classes in MongoDB. Without Mong
 
 ## Owner portal
 
-The owner login route is controlled by `NEXT_PUBLIC_OWNER_PORTAL_SLUG` in the Next.js app and should stay private. The matching login URL is:
+The owner login route is controlled by `NEXT_PUBLIC_OWNER_PORTAL_SLUG` in the Next.js app. Treat it as an obscured path, not the real security boundary—the dashboard is protected by owner authentication. The matching login URL is:
 
 ```text
 /portal/<NEXT_PUBLIC_OWNER_PORTAL_SLUG>/login
