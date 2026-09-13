@@ -32,7 +32,7 @@ export default function StudioBootstrap() {
         }
       } catch (error) {
         if (isMounted) {
-          dispatch(setStudioError(error.message));
+          dispatch(setStudioError(error.response?.data?.message || error.message));
         }
       }
     };

@@ -1,8 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { serviceHighlights } from "@/lib/siteData";
 import { useAppSelector } from "@/redux/hooks";
+
+const directImageLoader = ({ src }) => src;
 
 export default function HomePage() {
   const { siteContent, classes } = useAppSelector((state) => state.studio);
@@ -16,9 +19,7 @@ export default function HomePage() {
           <h1 className="max-w-3xl text-5xl font-semibold tracking-tight text-slate-950 md:text-6xl">
             Nouri By Morgan helps every class feel like a return to strength, softness, and light.
           </h1>
-          <p className="max-w-2xl text-lg leading-8 text-slate-600">
-            {siteContent.heroTagline}
-          </p>
+          <p className="max-w-2xl text-lg leading-8 text-slate-600">{siteContent.heroTagline}</p>
           <div className="flex flex-wrap gap-3">
             <Link href="/classes" className="btn btn-warning rounded-full px-6 text-base text-amber-950">
               View upcoming classes
@@ -30,17 +31,25 @@ export default function HomePage() {
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           {siteContent.carouselImages.map((image) => (
-            <div
+            <figure
               key={image.src}
-              className="relative min-h-56 rounded-[2rem] border border-white/80 bg-gradient-to-br from-amber-100 via-white to-rose-100 p-6 shadow-inner"
+              className="relative min-h-56 overflow-hidden rounded-[2rem] border border-white/80 bg-gradient-to-br from-amber-100 via-white to-rose-100 shadow-inner"
             >
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.9),_transparent_60%)]" />
-              <div className="relative flex h-full flex-col justify-end rounded-[1.5rem] bg-white/45 p-4 backdrop-blur-sm">
-                <p className="text-sm font-semibold uppercase tracking-[0.25em] text-amber-500">Gallery</p>
-                <p className="mt-2 text-lg font-medium text-slate-900">{image.alt}</p>
-                <p className="mt-3 truncate text-sm text-slate-500">{image.src}</p>
-              </div>
-            </div>
+              <Image
+                src={image.src}
+                alt={image.alt}
+                loader={directImageLoader}
+                unoptimized
+                width={720}
+                height={480}
+                className="h-full min-h-56 w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(15,23,42,0.68))]" />
+              <figcaption className="absolute inset-x-0 bottom-0 p-5 text-white">
+                <p className="text-sm font-semibold uppercase tracking-[0.25em] text-amber-200">Gallery</p>
+                <p className="mt-2 text-lg font-medium">{image.alt}</p>
+              </figcaption>
+            </figure>
           ))}
         </div>
       </section>

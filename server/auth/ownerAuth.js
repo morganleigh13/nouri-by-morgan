@@ -23,9 +23,14 @@ export async function authenticateOwner({ email, password }) {
 
   const normalizedEmail = email?.trim().toLowerCase();
   const emailMatches = normalizedEmail === ownerEmail.toLowerCase();
+
+  if (!emailMatches) {
+    return null;
+  }
+
   const passwordMatches = await argon2.verify(passwordHash, password || "");
 
-  if (!emailMatches || !passwordMatches) {
+  if (!passwordMatches) {
     return null;
   }
 

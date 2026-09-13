@@ -246,8 +246,13 @@ export default function OwnerDashboard({ slug }) {
 function AboutContentForm({ authToken, defaultValue, onError, onSuccess, onUpdate }) {
   const [aboutForm, setAboutForm] = useState(defaultValue);
   const [isSavingContent, setIsSavingContent] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
+    if (isEditing) {
+      return;
+    }
+
     const frame = window.requestAnimationFrame(() => {
       setAboutForm(defaultValue);
     });
@@ -255,10 +260,11 @@ function AboutContentForm({ authToken, defaultValue, onError, onSuccess, onUpdat
     return () => {
       window.cancelAnimationFrame(frame);
     };
-  }, [defaultValue]);
+  }, [defaultValue, isEditing]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
+    setIsEditing(true);
     setAboutForm((current) => ({ ...current, [name]: value }));
   };
 
@@ -279,6 +285,7 @@ function AboutContentForm({ authToken, defaultValue, onError, onSuccess, onUpdat
         authToken,
       );
       onUpdate(response);
+      setIsEditing(false);
       onSuccess("Site content updated.");
     } catch (error) {
       onError(error.response?.data?.message || error.message);
