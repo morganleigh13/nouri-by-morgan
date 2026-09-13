@@ -11,7 +11,8 @@ export const serviceHighlights = [
     href: "/body-sculpting",
     kicker: "Strength",
     title: "Body sculpting",
-    description: "Low-impact sculpting sessions that build endurance, posture, and confidence.",
+    description:
+      "Certified, non-invasive 9-in-1 ultrasound body sculpting with personalized care, preparation, and aftercare guidance.",
   },
   {
     href: "/yoga",

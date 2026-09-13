@@ -20,6 +20,14 @@ const afterCare = [
   "Contact Nouri or your healthcare provider if you have unexpected, severe, or persistent pain, swelling, skin changes, or other concerning symptoms.",
 ];
 
+const nutritionGuidance = [
+  "Choose water as your main drink before and after your appointment. Add electrolytes only if they fit your health needs and your provider recommends them.",
+  "Limit or avoid alcohol for at least 24 hours before and after your session because it can contribute to dehydration and may not fit your treatment protocol.",
+  "Keep caffeine moderate, especially on the day of your appointment. Avoid using extra caffeine to replace water or food, and follow your provider's specific instructions.",
+  "Prioritize balanced meals with protein, vegetables, and fiber-rich, lower-carbohydrate options rather than skipping meals before treatment.",
+  "Reduce added sugar and highly processed foods during the 24–72 hour care window. A lower-sugar, protein-forward eating pattern supports your overall wellness goals but does not replace medical or nutrition advice.",
+];
+
 export default function BodySculptingPage() {
   return (
     <section className="page-shell">
@@ -88,6 +96,21 @@ export default function BodySculptingPage() {
               ))}
             </ul>
           </div>
+        </div>
+
+        <div className="mt-6 rounded-[1.75rem] border border-emerald-200 bg-emerald-50/80 p-6">
+          <h3 className="text-2xl font-semibold text-slate-950">Drinks and nutrition</h3>
+          <p className="mt-2 text-sm font-medium uppercase tracking-[0.18em] text-emerald-700">
+            Support your appointment for 24–72 hours
+          </p>
+          <ul className="mt-6 grid gap-4 md:grid-cols-2">
+            {nutritionGuidance.map((item) => (
+              <li key={item} className="flex gap-3 leading-7 text-slate-700">
+                <span className="mt-2 h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-400" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
         </div>
 
         <p className="mt-8 rounded-2xl border border-slate-200 bg-white/70 p-5 text-sm leading-6 text-slate-600">
