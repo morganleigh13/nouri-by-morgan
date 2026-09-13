@@ -1,19 +1,8 @@
-import { Geist, Geist_Mono } from "next/font/google";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import StoreProvider from "@/components/StoreProvider";
 import StudioBootstrap from "@/components/StudioBootstrap";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata = {
   title: "Nouri By Morgan",
@@ -22,11 +11,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html
-      lang="en"
-      data-theme="light"
-      className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth`}
-    >
+    <html lang="en" data-theme="light" className="h-full scroll-smooth">
       <body className="min-h-full bg-[radial-gradient(circle_at_top,_rgba(254,240,138,0.25),_transparent_35%),linear-gradient(180deg,_#fffdf8,_#fff7ed_55%,_#ffffff)] text-slate-900">
         <StoreProvider>
           <StudioBootstrap />
